@@ -157,6 +157,21 @@ impl fmt::Display for Note {
     }
 }
 
+#[derive(PartialEq, Eq, Debug, Clone)]
+pub struct Notes(pub Vec<Note>);
+
+impl fmt::Display for Notes {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for (i, note) in self.0.iter().enumerate() {
+            if i > 0 {
+                write!(f, ", ")?;
+            }
+            write!(f, "{}", note)?;
+        }
+        Ok(())
+    }
+}
+
 #[macro_export]
 macro_rules! c {
     ($octave:expr) => {

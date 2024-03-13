@@ -1,6 +1,11 @@
 #[cfg(test)]
 mod tests {
-    use scales::{a, b, c, d, e, f, g, intervals::Interval};
+    use scales::{
+        a, aes, b, bes, c, d, dis, e, es, f, g,
+        intervals::Interval,
+        notes::Notes,
+        scales::{spell, Major},
+    };
 
     #[test]
     fn test_note_steps() {
@@ -42,5 +47,19 @@ mod tests {
         assert_eq!(e, e!(3));
         let d = note.fall(Interval::MinorSeventh);
         assert_eq!(d, d!(3));
+    }
+
+    #[test]
+    fn test_spell() {
+        assert_eq!(
+            spell(Major { root: c!(4) }),
+            Notes(vec![c!(4), d!(4), e!(4), f!(4), g!(4), a!(4), b!(4)])
+        );
+
+        println!("D# Major: {}", spell(Major { root: dis!(4) }));
+        assert_eq!(
+            spell(Major { root: es!(4) }),
+            Notes(vec![es!(4), f!(4), g!(4), aes!(4), bes!(4), c!(5), d!(5)])
+        );
     }
 }
