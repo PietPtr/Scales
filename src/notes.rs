@@ -1,6 +1,6 @@
-use std::fmt;
+use std::fmt::{self};
 
-use crate::intervals::Interval;
+use crate::intervals::{Diatonic, Interval};
 
 pub type Accidentals = i32;
 pub const NATURAL: i32 = 0;
@@ -138,22 +138,51 @@ impl Note {
             n => "♯".to_string().repeat(n as usize),
         }
     }
+
+    fn accidental_to_dutch_notation(accidental: Accidentals) -> String {
+        match accidental {
+            n if n < 0 => "es".to_string().repeat(n.unsigned_abs() as usize),
+            n => "is".to_string().repeat(n as usize),
+        }
+    }
 }
 
 impl fmt::Display for Note {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let note_name = match self.name {
-            NoteName::C => "C",
-            NoteName::D => "D",
-            NoteName::E => "E",
-            NoteName::F => "F",
-            NoteName::G => "G",
-            NoteName::A => "A",
-            NoteName::B => "B",
+            NoteName::C => "c",
+            NoteName::D => "d",
+            NoteName::E => "e",
+            NoteName::F => "f",
+            NoteName::G => "g",
+            NoteName::A => "a",
+            NoteName::B => "b",
         };
 
         let accidental_str = Note::accidental_to_string(self.accidentals);
         write!(f, "{}{}{}", note_name, accidental_str, self.octave)
+    }
+}
+
+pub trait FormatAsCode {
+    fn fmt_as_code(&self) -> String;
+}
+
+impl FormatAsCode for Note {
+    fn fmt_as_code(&self) -> String {
+        let note_name = match self.name {
+            NoteName::C => "c",
+            NoteName::D => "d",
+            NoteName::E => "e",
+            NoteName::F => "f",
+            NoteName::G => "g",
+            NoteName::A => "a",
+            NoteName::B => "b",
+        };
+
+        let accidental_str = Note::accidental_to_dutch_notation(self.accidentals);
+        // write!(f, "{}{}{}", note_name, accidental_str, self.octave)
+        format!("{}{}!(4)", note_name, accidental_str)
     }
 }
 
@@ -169,6 +198,20 @@ impl fmt::Display for Notes {
             write!(f, "{}", note)?;
         }
         Ok(())
+    }
+}
+
+impl FormatAsCode for Notes {
+    fn fmt_as_code(&self) -> String {
+        let Notes(notes) = self;
+        format!(
+            "[{}]",
+            notes
+                .iter()
+                .map(|note| note.fmt_as_code())
+                .collect::<Vec<String>>()
+                .join(", ")
+        )
     }
 }
 
@@ -261,7 +304,7 @@ macro_rules! eis {
 }
 
 #[macro_export]
-macro_rules! es {
+macro_rules! ees {
     ($octave:expr) => {
         $crate::notes::Note {
             name: $crate::notes::NoteName::E,

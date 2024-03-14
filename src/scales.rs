@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
 use crate::{
-    intervals::Interval,
-    notes::{self, Note, Notes},
+    intervals::{ImperfectInterval, Interval, PerfectInterval},
+    notes::{Note, Notes},
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -44,14 +44,17 @@ pub struct Major {
 
 impl Scale for Major {
     fn intervals(&self) -> HashSet<Interval> {
+        use ImperfectInterval::*;
+        use Interval::*;
+        use PerfectInterval::*;
         let mut intervals = HashSet::new();
-        intervals.insert(Interval::Unison);
-        intervals.insert(Interval::MajorSecond);
-        intervals.insert(Interval::MajorThird);
-        intervals.insert(Interval::PerfectFourth);
-        intervals.insert(Interval::PerfectFifth);
-        intervals.insert(Interval::MajorSixth);
-        intervals.insert(Interval::MajorSeventh);
+        intervals.insert(Perfect(Unison));
+        intervals.insert(Major(Second));
+        intervals.insert(Major(Third));
+        intervals.insert(Perfect(Fourth));
+        intervals.insert(Perfect(Fifth));
+        intervals.insert(Major(Sixth));
+        intervals.insert(Major(Seventh));
         intervals
     }
 
@@ -64,7 +67,7 @@ pub fn spell<S: Scale>(scale: S) -> Notes {
     let mut notes = vec![];
 
     let mut intervals: Vec<Interval> = scale.intervals().iter().cloned().collect();
-    intervals.sort();
+    intervals.sort_by_key(|a| a.size());
 
     for interval in intervals {
         notes.push(scale.root().leap(interval));
